@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSS Housing</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="w-64 bg-blue-900 text-white p-5">
+            <h1 class="text-2xl font-bold text-center mb-6">SSS Housing</h1>
+            <ul>
+                <li class="mb-4"><a href="index.html" class="hover:underline">Home</a></li>
+                <li class="mb-4"><a href="properties.html" class="hover:underline">Properties</a></li>
+                <li class="mb-4"><a href="residents.html" class="hover:underline">Residents</a></li>
+                <li class="mb-4"><a href="occupancies.html" class="hover:underline">Occupancies</a></li>
+                <li class="mb-4"><a href="attributes.html" class="hover:underline">Attributes</a></li>
+            </ul>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="flex-1 p-10 flex flex-col items-center">
+            <h2 class="text-3xl font-bold mb-10">Dashboard</h2>
+            
+            <!-- Widgets -->
+            <div class="grid grid-cols-3 gap-10 w-full max-w-6xl">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-lg font-semibold mb-4">Total Properties</h3>
+                    <input id="totalProperties" type="number" class="w-full p-2 border border-gray-300 rounded" value="10">
+                    <button class="mt-2 bg-blue-500 text-white p-2 rounded" onclick="saveData('totalProperties')">Save</button>
+                </div>
+                
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-lg font-semibold mb-4">Total Rooms</h3>
+                    <input id="totalRooms" type="number" class="w-full p-2 border border-gray-300 rounded" value="20">
+                    <button class="mt-2 bg-blue-500 text-white p-2 rounded" onclick="saveData('totalRooms')">Save</button>
+                </div>
+                
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-lg font-semibold mb-4">Total Residents</h3>
+                    <input id="totalResidents" type="number" class="w-full p-2 border border-gray-300 rounded" value="50">
+                    <button class="mt-2 bg-blue-500 text-white p-2 rounded" onclick="saveData('totalResidents')">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Function to save data in localStorage
+        function saveData(key) {
+            const value = document.getElementById(key).value;
+            localStorage.setItem(key, value); // Save value to localStorage
+            alert(`${key} saved!`);
+        }
+
+        // Function to load data from localStorage when page loads
+        window.onload = function() {
+            const totalProperties = localStorage.getItem('totalProperties');
+            const totalRooms = localStorage.getItem('totalRooms');
+            const totalResidents = localStorage.getItem('totalResidents');
+            
+            if (totalProperties !== null) {
+                document.getElementById('totalProperties').value = totalProperties;
+            }
+            if (totalRooms !== null) {
+                document.getElementById('totalRooms').value = totalRooms;
+            }
+            if (totalResidents !== null) {
+                document.getElementById('totalResidents').value = totalResidents;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Residents</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.1/xlsx.full.min.js"></script>
+</head>
+<body class="bg-gray-100">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="w-64 bg-blue-900 text-white p-5">
+            <h1 class="text-2xl font-bold text-center mb-6">SSS Housing</h1>
+            <ul>
+                <li class="mb-4"><a href="index.html" class="hover:underline">Home</a></li>
+                <li class="mb-4"><a href="properties.html" class="hover:underline">Properties</a></li>
+                <li class="mb-4"><a href="residents.html" class="hover:underline">Residents</a></li>
+                <li class="mb-4"><a href="occupancies.html" class="hover:underline">Occupancies</a></li>
+                <li class="mb-4"><a href="attributes.html" class="hover:underline">Attributes</a></li>
+            </ul>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="flex-1 p-10 flex flex-col items-center">
+            <h2 class="text-3xl font-bold mb-10">Residents</h2>
+            
+            <!-- Residents Table -->
+            <div class="w-full max-w-6xl bg-white p-6 rounded-lg shadow-md">
+                <table id="residentsTable" class="w-full border-collapse border border-gray-300">
+                    <thead>
+                        <tr class="bg-gray-200">
+                            <th class="border border-gray-300 p-2">Resident Name</th>
+                            <th class="border border-gray-300 p-2">Date of Birth</th>
+                            <th class="border border-gray-300 p-2">Gender</th>
+                            <th class="border border-gray-300 p-2">Property</th>
+                            <th class="border border-gray-300 p-2">Room</th>
+                            <th class="border border-gray-300 p-2">Status</th>
+                            <th class="border border-gray-300 p-2">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <!-- Rows will be dynamically added here -->
+                    </tbody>
+                </table>
+                <button onclick="addRow()" class="mt-4 px-4 py-2 bg-green-500 text-white rounded">Add Row</button>
+                <button onclick="saveData()" class="mt-4 ml-2 px-4 py-2 bg-blue-500 text-white rounded">Save Data</button>
+                <button id="exportButton" class="mt-4 ml-2 px-4 py-2 bg-yellow-500 text-white rounded">Export to Excel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Function to add a new row
+        function addRow() {
+            let tableBody = document.getElementById("tableBody");
+            let newRow = document.createElement("tr");
+
+            let columns = 6; // Number of editable columns
+            for (let i = 0; i < columns; i++) {
+                let cell = document.createElement("td");
+                cell.contentEditable = "true";
+                cell.className = "border border-gray-300 p-2";
+                newRow.appendChild(cell);
+            }
+
+            // Delete button
+            let deleteCell = document.createElement("td");
+            deleteCell.innerHTML = `<button onclick="deleteRow(this)" class="px-2 py-1 bg-red-500 text-white rounded">Delete</button>`;
+            deleteCell.className = "border border-gray-300 p-2 text-center";
+            newRow.appendChild(deleteCell);
+
+            tableBody.appendChild(newRow);
+        }
+
+        // Function to delete a row
+        function deleteRow(button) {
+            let row = button.parentNode.parentNode;
+            row.parentNode.removeChild(row);
+        }
+
+        // Function to save table data to local storage
+        function saveData() {
+            let tableBody = document.getElementById("tableBody");
+            let rows = tableBody.getElementsByTagName("tr");
+            let data = [];
+
+            for (let row of rows) {
+                let cells = row.getElementsByTagName("td");
+                let rowData = [];
+                for (let i = 0; i < cells.length - 1; i++) { // Exclude delete button
+                    rowData.push(cells[i].innerText);
+                }
+                data.push(rowData);
+            }
+
+            localStorage.setItem("residentsData", JSON.stringify(data));
+            alert("Data saved successfully!");
+        }
+
+        // Function to load saved data from local storage
+        function loadData() {
+            let tableBody = document.getElementById("tableBody");
+            let savedData = localStorage.getItem("residentsData");
+
+            if (savedData) {
+                let data = JSON.parse(savedData);
+                data.forEach(rowData => {
+                    let newRow = document.createElement("tr");
+                    
+                    rowData.forEach(cellData => {
+                        let cell = document.createElement("td");
+                        cell.contentEditable = "true";
+                        cell.className = "border border-gray-300 p-2";
+                        cell.innerText = cellData;
+                        newRow.appendChild(cell);
+                    });
+
+                    // Delete button
+                    let deleteCell = document.createElement("td");
+                    deleteCell.innerHTML = `<button onclick="deleteRow(this)" class="px-2 py-1 bg-red-500 text-white rounded">Delete</button>`;
+                    deleteCell.className = "border border-gray-300 p-2 text-center";
+                    newRow.appendChild(deleteCell);
+
+                    tableBody.appendChild(newRow);
+                });
+            }
+        }
+
+        // Function to export table data to Excel
+        document.getElementById("exportButton").addEventListener("click", function() {
+            let table = document.getElementById("residentsTable");
+            let wb = XLSX.utils.table_to_book(table, {sheet: "Residents"});
+            XLSX.writeFile(wb, "residentsData.xlsx");
+        });
+
+        // Load saved data on page load
+        window.onload = loadData;
+    </script>
+</body>
+</html>
