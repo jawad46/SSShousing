@@ -5,6 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SSS Housing</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Include Chart.js -->
+    <style>
+        /* No background or box for the header */
+        header {
+            margin: 0;
+            padding: 20px 0; /* Adjust padding for spacing */
+        }
+
+        /* Centering the text */
+        header h2 {
+            text-align: center;
+            font-size: 2.5rem; /* Adjust font size as needed */
+            font-weight: 700;
+            color: black; /* Set text color to black */
+        }
+
+        /* Remove any box shadows or borders */
+        .no-border {
+            border: none;
+            box-shadow: none;
+        }
+    </style>
 </head>
 <body class="bg-gray-100">
     <div class="flex h-screen">
@@ -22,10 +44,13 @@
         
         <!-- Main Content -->
         <div class="flex-1 p-10 flex flex-col items-center">
-            <h2 class="text-3xl font-bold mb-10">Dashboard</h2>
-            
-            <!-- Widgets -->
-            <div class="grid grid-cols-3 gap-10 w-full max-w-6xl">
+            <!-- Dashboard Header -->
+            <header class="w-full no-border">
+                <h2>Home Dashboard</h2>
+            </header>
+
+            <!-- Widgets Section -->
+            <div class="grid grid-cols-3 gap-10 w-full max-w-6xl mt-6">
                 <div class="bg-white p-6 rounded-lg shadow-md">
                     <h3 class="text-lg font-semibold mb-4">Total Properties</h3>
                     <input id="totalProperties" type="number" class="w-full p-2 border border-gray-300 rounded" value="10">
@@ -44,6 +69,12 @@
                     <button class="mt-2 bg-blue-500 text-white p-2 rounded" onclick="saveData('totalResidents')">Save</button>
                 </div>
             </div>
+
+            <!-- Pie Chart for Occupancy Rate -->
+            <div class="bg-white p-6 rounded-lg shadow-md mt-10 w-full max-w-xs">
+                <h3 class="text-lg font-semibold mb-4">Occupancy Rate</h3>
+                <canvas id="occupancyChart"></canvas>
+            </div>
         </div>
     </div>
 
@@ -53,6 +84,7 @@
             const value = document.getElementById(key).value;
             localStorage.setItem(key, value); // Save value to localStorage
             alert(`${key} saved!`);
+            loadOccupancyChart(); // Re-load the chart after saving data
         }
 
         // Function to load data from localStorage when page loads
@@ -70,6 +102,50 @@
             if (totalResidents !== null) {
                 document.getElementById('totalResidents').value = totalResidents;
             }
+            
+            loadOccupancyChart(); // Load the chart when page loads
+        }
+
+        // Function to calculate occupancy rate and load the chart
+        function loadOccupancyChart() {
+            const totalRooms = parseInt(localStorage.getItem('totalRooms')) || 0;
+            const totalResidents = parseInt(localStorage.getItem('totalResidents')) || 0;
+
+            // Calculate occupancy rate
+            const occupancyRate = totalResidents / totalRooms * 100;
+
+            // Data for the Pie chart
+            const data = {
+                labels: ['Occupied', 'Vacant'],
+                datasets: [{
+                    label: 'Occupancy Rate',
+                    data: [occupancyRate, 100 - occupancyRate],
+                    backgroundColor: ['#36A2EB', '#FF6384'],
+                    hoverBackgroundColor: ['#36A2EB', '#FF6384']
+                }]
+            };
+
+            // Configuring the Pie chart
+            const ctx = document.getElementById('occupancyChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'pie',
+                data: data,
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(tooltipItem) {
+                                    return tooltipItem.label + ': ' + tooltipItem.raw.toFixed(2) + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
         }
     </script>
 </body>

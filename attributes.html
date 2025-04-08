@@ -1,145 +1,176 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Attributes</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Include SheetJS for Excel export functionality -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Attributes</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.1/xlsx.full.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    th {
+      position: sticky;
+      top: 0;
+      background: #f3f4f6;
+    }
+  </style>
 </head>
-<body class="bg-gray-100">
-    <div class="flex h-screen">
-        <!-- Sidebar -->
-        <div class="w-64 bg-blue-900 text-white p-5">
-            <h1 class="text-2xl font-bold text-center mb-6">SSS Housing</h1>
-            <ul>
-                <li class="mb-4"><a href="index.html" class="hover:underline">Home</a></li>
-                <li class="mb-4"><a href="properties.html" class="hover:underline">Properties</a></li>
-                <li class="mb-4"><a href="residents.html" class="hover:underline">Residents</a></li>
-                <li class="mb-4"><a href="occupancies.html" class="hover:underline">Occupancies</a></li>
-                <li class="mb-4"><a href="attributes.html" class="hover:underline">Attributes</a></li>
-            </ul>
-        </div>
-        
-        <!-- Main Content -->
-        <div class="flex-1 p-10 flex flex-col items-center">
-            <h2 class="text-3xl font-bold mb-10">Attributes</h2>
-            
-            <!-- Attributes Table -->
-            <div class="w-full max-w-6xl bg-white p-6 rounded-lg shadow-md">
-                <table id="attributesTable" class="w-full border-collapse border border-gray-300">
-                    <thead>
-                        <tr class="bg-gray-200">
-                            <th class="border border-gray-300 p-2">Resident Attributes</th>
-                            <th class="border border-gray-300 p-2">Provider Resident</th>
-                            <th class="border border-gray-300 p-2">Resident Full Name</th>
-                            <th class="border border-gray-300 p-2">Record Type Name</th>
-                            <th class="border border-gray-300 p-2">Type</th>
-                            <th class="border border-gray-300 p-2">Sub Type</th>
-                            <th class="border border-gray-300 p-2">Subject</th>
-                            <th class="border border-gray-300 p-2">Status</th>
-                            <th class="border border-gray-300 p-2">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tableBody">
-                        <!-- Rows will be dynamically added here -->
-                    </tbody>
-                </table>
-                <button onclick="addRow()" class="mt-4 px-4 py-2 bg-green-500 text-white rounded">Add Row</button>
-                <button onclick="saveData()" class="mt-4 ml-2 px-4 py-2 bg-blue-500 text-white rounded">Save Data</button>
-                <button onclick="exportToExcel()" class="mt-4 ml-2 px-4 py-2 bg-yellow-500 text-white rounded">Export to Excel</button>
-            </div>
-        </div>
+<body class="bg-gray-100 text-gray-800">
+
+  <div class="flex h-screen overflow-hidden">
+    <!-- Sidebar -->
+    <div class="w-64 bg-blue-900 text-white p-6 flex-shrink-0">
+      <h1 class="text-2xl font-bold mb-6 text-center">SSS Housing</h1>
+      <nav class="space-y-4">
+        <a href="index.html" class="block hover:underline">Home</a>
+        <a href="properties.html" class="block hover:underline">Properties</a>
+        <a href="residents.html" class="block hover:underline">Residents</a>
+        <a href="occupancies.html" class="block hover:underline">Occupancies</a>
+        <a href="attributes.html" class="block hover:underline font-semibold">Attributes</a>
+      </nav>
     </div>
 
-    <script>
-        // Function to add a new row
-        function addRow() {
-            let tableBody = document.getElementById("tableBody");
-            let newRow = document.createElement("tr");
+    <!-- Main Content -->
+    <main class="flex-1 p-8 overflow-y-auto">
+      <h2 class="text-3xl font-bold mb-6">Attributes</h2>
 
-            let columns = 8; // Number of editable columns
-            for (let i = 0; i < columns; i++) {
-                let cell = document.createElement("td");
-                cell.contentEditable = "true";
-                cell.className = "border border-gray-300 p-2";
-                newRow.appendChild(cell);
-            }
+      <!-- Search Bar -->
+      <div class="mb-4">
+        <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Search attributes..." class="w-full max-w-sm p-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring focus:border-blue-400">
+      </div>
 
-            // Delete button
-            let deleteCell = document.createElement("td");
-            deleteCell.innerHTML = `<button onclick="deleteRow(this)" class="px-2 py-1 bg-red-500 text-white rounded">Delete</button>`;
-            deleteCell.className = "border border-gray-300 p-2 text-center";
-            newRow.appendChild(deleteCell);
+      <!-- Table -->
+      <div class="bg-white rounded-2xl shadow-lg p-6 overflow-x-auto">
+        <table id="attributesTable" class="w-full border border-gray-300 text-sm">
+          <thead>
+            <tr class="bg-gray-200 text-left">
+              <th class="p-2 border">Resident Attributes</th>
+              <th class="p-2 border">Provider Resident</th>
+              <th class="p-2 border">Resident Full Name</th>
+              <th class="p-2 border">Record Type Name</th>
+              <th class="p-2 border">Type</th>
+              <th class="p-2 border">Sub Type</th>
+              <th class="p-2 border">Subject</th>
+              <th class="p-2 border">Status</th>
+              <th class="p-2 border text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <!-- Dynamic rows -->
+          </tbody>
+        </table>
 
-            tableBody.appendChild(newRow);
+        <div class="mt-6 flex gap-4 flex-wrap">
+          <button onclick="addRow()" class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded shadow">Add Row</button>
+          <button onclick="saveData()" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded shadow">Save Data</button>
+          <button onclick="exportToExcel()" class="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded shadow">Export to Excel</button>
+        </div>
+
+        <!-- Toast -->
+        <div id="toast" class="mt-4 text-green-700 hidden">✔ Data saved!</div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    function addRow() {
+      const tableBody = document.getElementById("tableBody");
+      const newRow = document.createElement("tr");
+      newRow.className = "even:bg-gray-100";
+
+      for (let i = 0; i < 8; i++) {
+        const cell = document.createElement("td");
+        cell.contentEditable = "true";
+        cell.className = "p-2 border";
+        newRow.appendChild(cell);
+      }
+
+      const deleteCell = document.createElement("td");
+      deleteCell.className = "p-2 border text-center";
+      deleteCell.innerHTML = `<button onclick="deleteRow(this)" class="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600">Delete</button>`;
+      newRow.appendChild(deleteCell);
+
+      tableBody.appendChild(newRow);
+    }
+
+    function deleteRow(button) {
+      const row = button.closest("tr");
+      row.remove();
+    }
+
+    function saveData() {
+      const tableBody = document.getElementById("tableBody");
+      const rows = tableBody.querySelectorAll("tr");
+      const data = [];
+
+      rows.forEach(row => {
+        const cells = row.querySelectorAll("td");
+        const rowData = [];
+        for (let i = 0; i < cells.length - 1; i++) {
+          rowData.push(cells[i].innerText.trim());
         }
+        data.push(rowData);
+      });
 
-        // Function to delete a row
-        function deleteRow(button) {
-            let row = button.parentNode.parentNode;
-            row.parentNode.removeChild(row);
+      localStorage.setItem("attributesData", JSON.stringify(data));
+
+      const toast = document.getElementById("toast");
+      toast.classList.remove("hidden");
+      setTimeout(() => toast.classList.add("hidden"), 2000);
+    }
+
+    function loadData() {
+      const saved = localStorage.getItem("attributesData");
+      if (!saved) return;
+
+      const data = JSON.parse(saved);
+      data.forEach(rowData => {
+        const newRow = document.createElement("tr");
+        newRow.className = "even:bg-gray-100";
+        rowData.forEach(cellData => {
+          const cell = document.createElement("td");
+          cell.contentEditable = "true";
+          cell.className = "p-2 border";
+          cell.innerText = cellData;
+          newRow.appendChild(cell);
+        });
+
+        const deleteCell = document.createElement("td");
+        deleteCell.className = "p-2 border text-center";
+        deleteCell.innerHTML = `<button onclick="deleteRow(this)" class="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600">Delete</button>`;
+        newRow.appendChild(deleteCell);
+
+        document.getElementById("tableBody").appendChild(newRow);
+      });
+    }
+
+    function exportToExcel() {
+      const table = document.getElementById("attributesTable");
+      const wb = XLSX.utils.table_to_book(table, { sheet: "Attributes" });
+      XLSX.writeFile(wb, "AttributesData.xlsx");
+    }
+
+    function filterTable() {
+      const input = document.getElementById("searchInput").value.toLowerCase();
+      const rows = document.getElementById("tableBody").getElementsByTagName("tr");
+
+      for (let row of rows) {
+        const cells = row.getElementsByTagName("td");
+        let match = false;
+        for (let i = 0; i < cells.length - 1; i++) {
+          if (cells[i].innerText.toLowerCase().includes(input)) {
+            match = true;
+            break;
+          }
         }
+        row.style.display = match ? "" : "none";
+      }
+    }
 
-        // Function to save table data to local storage
-        function saveData() {
-            let tableBody = document.getElementById("tableBody");
-            let rows = tableBody.getElementsByTagName("tr");
-            let data = [];
-
-            for (let row of rows) {
-                let cells = row.getElementsByTagName("td");
-                let rowData = [];
-                for (let i = 0; i < cells.length - 1; i++) { // Exclude delete button
-                    rowData.push(cells[i].innerText);
-                }
-                data.push(rowData);
-            }
-
-            localStorage.setItem("attributesData", JSON.stringify(data));
-            alert("Data saved successfully!");
-        }
-
-        // Function to load saved data from local storage
-        function loadData() {
-            let tableBody = document.getElementById("tableBody");
-            let savedData = localStorage.getItem("attributesData");
-
-            if (savedData) {
-                let data = JSON.parse(savedData);
-                data.forEach(rowData => {
-                    let newRow = document.createElement("tr");
-                    
-                    rowData.forEach(cellData => {
-                        let cell = document.createElement("td");
-                        cell.contentEditable = "true";
-                        cell.className = "border border-gray-300 p-2";
-                        cell.innerText = cellData;
-                        newRow.appendChild(cell);
-                    });
-
-                    // Delete button
-                    let deleteCell = document.createElement("td");
-                    deleteCell.innerHTML = `<button onclick="deleteRow(this)" class="px-2 py-1 bg-red-500 text-white rounded">Delete</button>`;
-                    deleteCell.className = "border border-gray-300 p-2 text-center";
-                    newRow.appendChild(deleteCell);
-
-                    tableBody.appendChild(newRow);
-                });
-            }
-        }
-
-        // Function to export table data to Excel
-        function exportToExcel() {
-            let table = document.getElementById("attributesTable");
-            let wb = XLSX.utils.table_to_book(table, { sheet: "Attributes" });
-            XLSX.writeFile(wb, "AttributesData.xlsx");
-        }
-
-        // Load saved data on page load
-        window.onload = loadData;
-    </script>
+    window.onload = loadData;
+  </script>
 </body>
 </html>
-
